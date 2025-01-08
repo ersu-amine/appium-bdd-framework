@@ -57,6 +57,8 @@ public class SingletonDriver {
 
     }
 
+    //TODO implement getting instance and driver into one method
+
     public static SingletonDriver getInstance() throws MalformedURLException, URISyntaxException {
         if (instance == null) {
             instance = new SingletonDriver();
