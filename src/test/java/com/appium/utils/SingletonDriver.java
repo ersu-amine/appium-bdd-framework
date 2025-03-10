@@ -14,6 +14,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.Duration;
+import java.util.Objects;
 
 public class SingletonDriver {
     //singleton instance of driver
@@ -21,55 +22,65 @@ public class SingletonDriver {
 
     //AppiumDriver<MobileElement> is deprecated
     //instance of mobile driver
-    private AppiumDriver driver;
+    private static AppiumDriver driver;
     private static URI uri;
 
     private SingletonDriver() throws URISyntaxException, MalformedURLException {
         String platform = ConfigurationFileReader.getProperty("platform");
-            switch (platform) {
-                case "android":
+        switch (platform) {
+            case "android":
+                UiAutomator2Options options = new UiAutomator2Options();
+                options.setDeviceName(ConfigurationFileReader.getProperty("platformName"));
+                options.setApp("/Users/michealthonton/IdeaProjects/cucumber-appium/src/test/resources/apps/ApiDemosDebug.apk");
+
+                driver = new AndroidDriver(new URI("http://127.0.0.1:4723").toURL(), options);
+                driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(15));
+
+
+                uri = new URI("http://127.0.0.1:4723");
+
+                driver = new AndroidDriver(uri.toURL(), options);
+
+                break;
+
+            case "IOS":
+                XCUITestOptions IOSoptions = new XCUITestOptions();
+                IOSoptions.setDeviceName("FirstPhone");
+                IOSoptions.setApp("/Users/michealthonton/IdeaProjects/cucumber-appium/src/test/resources/apps/UIKitCatalog.app");
+                IOSoptions.setPlatformVersion("18.2");
+                IOSoptions.setWdaLaunchTimeout(Duration.ofSeconds(15));
+
+                driver = new IOSDriver(new URI("http://127.0.0.1:4723").toURL(), IOSoptions);
+                driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+
+                break;
+        }
+
+    }
+
+    public static AppiumDriver getDriver(String platform) throws MalformedURLException, URISyntaxException {
+        String platformName = ConfigurationFileReader.getProperty(platform);
+        //create driver if it is null
+        if (Objects.isNull(driver)) {
+            switch (platformName) {
+                case "android-native":
                     UiAutomator2Options options = new UiAutomator2Options();
-                    options.setDeviceName(ConfigurationFileReader.getProperty("platformName"));
-                    options.setApp("/Users/michealthonton/IdeaProjects/cucumber-appium/src/test/resources/apps/ApiDemosDebug.apk");
+                    options.setApp(ConfigurationFileReader.getProperty("android-app"));
 
                     driver = new AndroidDriver(new URI("http://127.0.0.1:4723").toURL(), options);
-                    driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(15));
-                    
-                    
-                    uri = new URI("http://127.0.0.1:4723");
-                   
-                    driver = new AndroidDriver(uri.toURL(), options);
-
                     break;
 
-                case "IOS":
-                    XCUITestOptions IOSoptions = new XCUITestOptions();
-                    IOSoptions.setDeviceName("FirstPhone");
-                    IOSoptions.setApp("/Users/michealthonton/IdeaProjects/cucumber-appium/src/test/resources/apps/UIKitCatalog.app");
-                    IOSoptions.setPlatformVersion("18.2");
-                    IOSoptions.setWdaLaunchTimeout(Duration.ofSeconds(15));
+                case "IOS-native":
+                    XCUITestOptions optionsIOS = new XCUITestOptions();
+                    optionsIOS.setApp(ConfigurationFileReader.getProperty("IOS-app"));
 
-                    driver = new IOSDriver(new URI("http://127.0.0.1:4723").toURL(), IOSoptions);
-                    driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
-
+                    driver = new AndroidDriver(new URI("http://127.0.0.1:4723").toURL(), optionsIOS);
                     break;
             }
-
-    }
-
-    //TODO implement getting instance and driver into one method
-
-    public static SingletonDriver getInstance() throws MalformedURLException, URISyntaxException {
-        if (instance == null) {
-            instance = new SingletonDriver();
         }
-        return instance;
-    }
-
-    public AppiumDriver getDriver() {
+        //return existing or newly made driver
         return driver;
     }
-
 }
 
 
