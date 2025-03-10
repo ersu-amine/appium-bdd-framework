@@ -39,3 +39,5 @@ build/
 /.idea/
 /configuration.properties
 
+/src/test/resources/environments/android.properties
+/src/test/resources/environments/ios.properties

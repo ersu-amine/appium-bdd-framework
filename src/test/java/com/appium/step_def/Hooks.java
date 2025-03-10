@@ -34,7 +34,7 @@ public class Hooks {
 
         //TODO wait and close driver
 
-        SingletonDriver.getInstance().getDriver().close();
+        SingletonDriver.getDriver("platformA").close();
     }
 }
 
